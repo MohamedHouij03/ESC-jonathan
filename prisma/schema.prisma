@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for the fitness application
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  studioName String?
+  password  String
+  profilePhoto String?
+  comments  String?  // User comments/notes
+  
+  // Location tracking
+  currentLocation String?
+  
+  // Authentication
+  resetPasswordToken    String?
+  resetPasswordExpires  DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  lastLogin DateTime @default(now())
+  
+  // Login history tracking
+  loginHistory LoginHistory[]
+  
+  // Course progress tracking
+  courseProgress CourseProgress[]
+  
+  // Newsletter subscription
+  newsletterSubscriptions NewsletterSubscription[]
+  
+  // Lesson comments
+  lessonComments LessonComment[]
+  
+  // Certificates
+  certificates Certificate[]
+  
+  @@map("users")
+}
+
+// Login history model
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  timestamp DateTime @default(now())
+  ipAddress String
+  location  String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("login_history")
+}
+
+// Course progress model
+model CourseProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  courseName String
+  progress  Int      @default(0) // Percentage (0-100)
+  startedAt DateTime @default(now())
+  lastAccessed DateTime @default(now())
+  
+  // Completed lessons and chapters
+  completedLessons CompletedLesson[]
+  completedChapters CompletedChapter[]
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("course_progress")
+}
+
+// Completed lessons tracking
+model CompletedLesson {
+  id        String   @id @default(cuid())
+  progressId String
+  lessonId  String
+  lessonName String
+  completedAt DateTime @default(now())
+  
+  courseProgress CourseProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  
+  @@unique([progressId, lessonId])
+  @@map("completed_lessons")
+}
+
+// Completed chapters tracking
+model CompletedChapter {
+  id        String   @id @default(cuid())
+  progressId String
+  chapterId String
+  chapterName String
+  completedAt DateTime @default(now())
+  
+  courseProgress CourseProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  
+  @@unique([progressId, chapterId])
+  @@map("completed_chapters")
+}
+
+// Newsletter subscription model
+model NewsletterSubscription {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  isActive  Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  source    String? // Where they subscribed from (e.g., 'newsletter_page', 'homepage')
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@unique([email])
+  @@map("newsletter_subscriptions")
+}
+
+// Lesson comments model
+model LessonComment {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String   // e.g., "chapter-4/4-7" or "chapter-6/6-1"
+  courseId  String   // e.g., "level1-reformers"
+  content   String
+  isEdited  Boolean  @default(false)
+  parentId  String?  // For replies to comments
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Self-referencing relation for replies
+  parent   LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  LessonComment[] @relation("CommentReplies")
+  
+  @@map("lesson_comments")
+}
+
+// Certificate model
+model Certificate {
+  id             String   @id @default(cuid())
+  userId         String
+  courseId       String
+  courseName     String
+  completionDate DateTime
+  certificateUrl String?  // URL to the generated certificate PDF
+  issuedAt       DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+  @@map("certificates")
+}

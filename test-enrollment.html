@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Course Enrollment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .button {
+            background: #E43636;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            display: block;
+            width: 100%;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .button.info {
+            background: #17a2b8;
+        }
+        .button.info:hover {
+            background: #138496;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Course Enrollment</h1>
+        
+        <button class="button info" onclick="checkUserState()">👤 Check User State</button>
+        <button class="button" onclick="testEnrollment()">📚 Test Enrollment</button>
+        <button class="button info" onclick="checkEnrollment()">✅ Check Enrollment Status</button>
+        
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script>
+        const logElement = document.getElementById('log');
+        
+        function log(message) {
+            console.log(message);
+            if (logElement) {
+                logElement.style.display = 'block';
+                logElement.textContent += message + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        function clearLog() {
+            if (logElement) {
+                logElement.textContent = '';
+                logElement.style.display = 'none';
+            }
+        }
+
+        function checkUserState() {
+            clearLog();
+            log('👤 Checking user state...');
+            
+            const userData = localStorage.getItem('user');
+            const localProgressData = localStorage.getItem('localProgress');
+            
+            log(`\n📊 User State:`);
+            log(`   user data: ${userData ? 'exists' : 'not found'}`);
+            log(`   localProgress data: ${localProgressData ? 'exists' : 'not found'}`);
+            
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    log(`   User ID: ${user._id}`);
+                    log(`   User Name: ${user.name || 'N/A'}`);
+                    log(`   User Email: ${user.email || 'N/A'}`);
+                    log(`   Course Progress: ${user.courseProgress?.length || 0} courses`);
+                    
+                    if (user.courseProgress) {
+                        user.courseProgress.forEach((cp, index) => {
+                            log(`     ${index + 1}. ${cp.courseId} - ${cp.progress}%`);
+                        });
+                    }
+                } catch (e) {
+                    log(`   Error parsing user data: ${e.message}`);
+                }
+            }
+            
+            if (localProgressData) {
+                try {
+                    const localProgress = JSON.parse(localProgressData);
+                    log(`   Local User ID: ${localProgress._id}`);
+                    log(`   Local Course Progress: ${localProgress.courseProgress?.length || 0} courses`);
+                } catch (e) {
+                    log(`   Error parsing local progress data: ${e.message}`);
+                }
+            }
+        }
+
+        async function testEnrollment() {
+            clearLog();
+            log('📚 Testing course enrollment...');
+            
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                log('❌ No user data found. Please log in first.');
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                log(`   User ID: ${user._id}`);
+                log(`   Testing enrollment for: level1-reformers`);
+                
+                const response = await fetch('/api/user/update-progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: user._id,
+                        courseId: 'level1-reformers',
+                        courseName: 'Level 1 Reformers',
+                        progress: 0
+                    })
+                });
+                
+                log(`   Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Enrollment successful!');
+                    log(`   Message: ${data.message}`);
+                    log(`   Course Progress ID: ${data.courseProgress.id}`);
+                    log(`   Progress: ${data.courseProgress.progress}%`);
+                    
+                    // Update localStorage
+                    const updatedUser = { ...user };
+                    if (!updatedUser.courseProgress) updatedUser.courseProgress = [];
+                    updatedUser.courseProgress.push(data.courseProgress);
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                    log('✅ Updated localStorage with enrollment data');
+                    
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ Enrollment failed: ${errorData.error}`);
+                }
+                
+            } catch (error) {
+                log(`❌ Error during enrollment: ${error.message}`);
+            }
+        }
+
+        async function checkEnrollment() {
+            clearLog();
+            log('✅ Checking enrollment status...');
+            
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                log('❌ No user data found.');
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                log(`   User ID: ${user._id}`);
+                
+                // Check localStorage
+                const reformersProgress = user.courseProgress?.find(cp => cp.courseId === 'level1-reformers');
+                if (reformersProgress) {
+                    log('✅ Found reformers progress in localStorage:');
+                    log(`   Progress: ${reformersProgress.progress}%`);
+                    log(`   Started: ${reformersProgress.startedAt}`);
+                    log(`   Last Accessed: ${reformersProgress.lastAccessed}`);
+                } else {
+                    log('❌ No reformers progress found in localStorage');
+                }
+                
+                // Check database
+                const response = await fetch(`/api/user/progress?userId=${user._id}&courseId=level1-reformers`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.courseProgress.length > 0) {
+                        log('✅ Found reformers progress in database:');
+                        const dbProgress = data.courseProgress[0];
+                        log(`   Progress: ${dbProgress.progress}%`);
+                        log(`   Started: ${dbProgress.startedAt}`);
+                        log(`   Last Accessed: ${dbProgress.lastAccessed}`);
+                    } else {
+                        log('❌ No reformers progress found in database');
+                    }
+                } else {
+                    log(`❌ Error checking database: ${response.status}`);
+                }
+                
+            } catch (error) {
+                log(`❌ Error checking enrollment: ${error.message}`);
+            }
+        }
+
+        // Auto-check on load
+        window.onload = function() {
+            log('🚀 Enrollment Tester loaded');
+            log('Click "Check User State" to see current user information');
+        };
+    </script>
+</body>
+</html>
