@@ -1,12 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Only create Supabase client if environment variables are available
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 // Helper function to upload profile photo to Supabase Storage
 export async function uploadProfilePhoto(userId: string, file: File): Promise<string> {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.')
+  }
+
   const fileExt = file.name.split('.').pop()
   const fileName = `${userId}-${Date.now()}.${fileExt}`
   const filePath = `profile-photos/${fileName}`
@@ -32,6 +39,11 @@ export async function uploadProfilePhoto(userId: string, file: File): Promise<st
 
 // Helper function to delete profile photo from Supabase Storage
 export async function deleteProfilePhoto(photoUrl: string): Promise<void> {
+  if (!supabase) {
+    console.warn('Supabase is not configured. Cannot delete profile photo.')
+    return
+  }
+
   // Extract file path from URL
   const urlParts = photoUrl.split('/')
   const fileName = urlParts[urlParts.length - 1]
