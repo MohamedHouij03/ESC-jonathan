@@ -1,4 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { COURSE_LESSON_COUNTS } from '@/utils/progressCalculator';
 
@@ -223,9 +226,9 @@ export async function POST(req: Request) {
 }
 
 // GET - Get user's course progress
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const userId = searchParams.get('userId');
     const courseId = searchParams.get('courseId');
 

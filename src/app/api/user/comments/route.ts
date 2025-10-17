@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 
 // GET - Get user comments
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const userId = searchParams.get('userId');
 
     if (!userId) {
@@ -55,7 +58,7 @@ export async function GET(req: Request) {
 }
 
 // PUT - Update user comments
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest) {
   try {
     const { userId, comments } = await req.json();
 
@@ -113,7 +116,7 @@ export async function PUT(req: Request) {
 }
 
 // POST - Add comment to user (append to existing comments)
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { userId, newComment, adminName } = await req.json();
 

@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 
 // POST - Create or update course progress (enrollment)
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { 
       userId, 
@@ -98,9 +101,9 @@ export async function POST(req: Request) {
 }
 
 // GET - Get course progress for a user
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const userId = searchParams.get('userId');
     const courseId = searchParams.get('courseId');
 

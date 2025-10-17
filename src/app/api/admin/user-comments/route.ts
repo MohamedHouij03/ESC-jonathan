@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 
 // GET - Get all users with their comments (admin only)
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const search = searchParams.get('search') || '';
@@ -87,9 +90,9 @@ export async function GET(req: Request) {
 }
 
 // DELETE - Clear all comments for a user (admin only)
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const userId = searchParams.get('userId');
 
     if (!userId) {

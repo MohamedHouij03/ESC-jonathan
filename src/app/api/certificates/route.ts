@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 
 // POST - Create a new certificate record
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { 
       userId, 
@@ -76,9 +79,9 @@ export async function POST(req: Request) {
 }
 
 // GET - Get user's certificates
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const userId = searchParams.get('userId');
 
     if (!userId) {

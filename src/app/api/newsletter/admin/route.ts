@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 
 // GET - Get all newsletter subscriptions (admin only)
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const status = searchParams.get('status'); // 'active', 'inactive', or 'all'
@@ -71,9 +74,9 @@ export async function GET(req: Request) {
 }
 
 // DELETE - Remove a subscription (admin only)
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const id = searchParams.get('id');
     const email = searchParams.get('email');
 
