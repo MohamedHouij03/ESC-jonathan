@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useUserProgress } from "@/hooks/useUserProgress";
+import LessonComments from "@/components/LessonComments";
 
 export default function Lesson317() {
   const [activeTab, setActiveTab] = useState('description');

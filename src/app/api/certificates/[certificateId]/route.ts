@@ -18,7 +18,7 @@ export async function GET(
     // Fetch the certificate
     const certificate = await prisma.certificate.findUnique({
       where: {
-        certificateId: certificateId
+        id: certificateId
       }
     });
 
@@ -32,7 +32,7 @@ export async function GET(
     return NextResponse.json({
       success: true,
       certificate: {
-        certificateId: certificate.certificateId,
+        certificateId: certificate.id,
         courseName: certificate.courseName,
         completionDate: certificate.completionDate,
         issuedAt: certificate.issuedAt

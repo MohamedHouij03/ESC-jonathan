@@ -114,7 +114,8 @@ const CertificateWithPDFTemplate: React.FC<CertificateWithPDFTemplateProps> = ({
         // Render PDF to canvas
         const renderContext = {
           canvasContext: context,
-          viewport: viewport
+          viewport: viewport,
+          canvas: canvas
         };
         
         await page.render(renderContext).promise;

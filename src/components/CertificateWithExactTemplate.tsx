@@ -146,7 +146,6 @@ const CertificateWithExactTemplate: React.FC<CertificateWithExactTemplateProps> 
           textRendering: "optimizeLegibility",
           WebkitFontSmoothing: "antialiased",
           MozOsxFontSmoothing: "grayscale",
-          imageRendering: "high-quality",
           imageRendering: "-webkit-optimize-contrast",
         }}
       >
@@ -163,7 +162,6 @@ const CertificateWithExactTemplate: React.FC<CertificateWithExactTemplateProps> 
             position: "absolute",
             top: "243px", // Fixed pixel position (43% of 565px)
             left: "50%",
-            transform: "translateX(-50%)",
             fontSize: "36px", // Increased from 28px to 36px for bigger name
             fontWeight: "normal", // Changed from bold to normal
             fontStyle: "italic", // Added italic

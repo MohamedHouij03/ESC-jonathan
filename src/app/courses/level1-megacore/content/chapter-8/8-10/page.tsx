@@ -56,7 +56,7 @@ export default function Lesson810() {
         <h3 className="font-semibold text-[#E43636] mt-4">Intensification(s) (harder)</h3>
         <ul className="list-disc pl-6 text-[#000000] mb-2">
           <li>Move forward on your hands and knees towards the front platform</li>
-          <li>Lift and lengthen your left leg to get into a bird dog position >>>>>></li>
+          <li>Lift and lengthen your left leg to get into a bird dog position</li>
           <li>Add a "Single Arm Serve the Platter"</li>
           <li>Exhale as you bend your right elbow, bringing your right hand towards your shoulder. Then, extend your right arm forward</li>
           <li>Inhale as you bring the elbow back and release your arm back just before losing tension</li>

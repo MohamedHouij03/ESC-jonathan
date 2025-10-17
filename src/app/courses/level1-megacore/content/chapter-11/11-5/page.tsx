@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import CourseNavigation from "@/components/CourseNavigation";
 import LessonComments from "@/components/LessonComments";
+import { useUserProgress } from "@/hooks/useUserProgress";
 
 export default function Lesson115() {
   const [isClient, setIsClient] = useState(false);

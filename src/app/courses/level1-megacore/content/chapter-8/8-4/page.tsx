@@ -239,17 +239,10 @@ export default function Lesson84() {
           {activeTab === 'qa' && (
             <div className="p-6">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Questions & Answers</h2>
-              <div className="space-y-4">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="bg-white p-4 rounded-lg border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-gray-800">{comment.author}</h3>
-                      <span className="text-gray-500 text-sm">{comment.timestamp}</span>
-                    </div>
-                    <p className="text-gray-700">{comment.text}</p>
-                  </div>
-                ))}
-              </div>
+              <LessonComments
+                lessonId="chapter-8/8-4"
+                courseId="level1-megacore"
+              />
             </div>
           )}
         </div>
